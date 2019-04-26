@@ -7,7 +7,10 @@
     "@types/node": "11.13.7",
     "@types/react": "16.8.14",
     "@types/react-dom": "16.8.4",
+    "apollo-boost": "^0.3.1",
+    "graphql": "^14.2.1",
     "react": "^16.8.6",
+    "react-apollo": "^2.5.5",
     "react-app-polyfill": "^1.0.0",
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.0",
@@ -37,12 +40,14 @@
   },
   "husky": {
     "hooks": {
-       "pre-commit": "export CI=true && yarn build && lint-staged && yarn test",
-       "pre-push": "export CI=true && yarn build && lint-staged && yarn test"
+      "pre-commit": "export CI=true && yarn build && lint-staged && yarn test",
+      "pre-push": "export CI=true && yarn build && lint-staged && yarn test"
     }
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["tslint -c tslint.json"]
+    "*.{ts,tsx}": [
+      "tslint -c tslint.json"
+    ]
   },
   "devDependencies": {
     "husky": "^2.1.0",

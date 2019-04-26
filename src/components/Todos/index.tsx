@@ -2,6 +2,7 @@ import { gql } from 'apollo-boost';
 import React, { Fragment } from 'react';
 import { Query } from 'react-apollo';
 import TodosCreate from './TodosCreate';
+import TodosTodo from './TodosTodo';
 
 const ALL_TODOS_QUERY = gql`
   {
@@ -41,7 +42,7 @@ const Todos = () => (
         <Fragment>
           <TodosCreate />
           {todos.map(({ id, title }) => (
-            <p key={id}>{title}</p>
+            <TodosTodo key={id} id={id} title={title} />
           ))}
         </Fragment>
       );

@@ -1,6 +1,7 @@
 import { gql } from 'apollo-boost';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Query } from 'react-apollo';
+import TodosCreate from './TodosCreate';
 
 const ALL_TODOS_QUERY = gql`
   {
@@ -36,7 +37,14 @@ const Todos = () => (
       const {
         allTodos: { nodes: todos },
       } = data;
-      return todos.map(({ id, title }) => <p key={id}>{title}</p>);
+      return (
+        <Fragment>
+          <TodosCreate />
+          {todos.map(({ id, title }) => (
+            <p key={id}>{title}</p>
+          ))}
+        </Fragment>
+      );
     }}
   </Query>
 );

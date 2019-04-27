@@ -1,6 +1,7 @@
 import { gql } from 'apollo-boost';
+import { DataProxy } from 'apollo-cache';
 import React, { Fragment } from 'react';
-import { Mutation, Query } from 'react-apollo';
+import { FetchResult, Mutation, Query } from 'react-apollo';
 import TodosCreate from './TodosCreate';
 import TodosTodo from './TodosTodo';
 
@@ -50,8 +51,31 @@ export interface CreateTodoVariables {
   title: string;
 }
 
+const handleUpdate = (cache: DataProxy, { data }: FetchResult<CreateTodoData>) => {
+  if (data === undefined) {
+    return;
+  }
+  const {
+    createTodo: { todo },
+  } = data;
+  const cacheData = cache.readQuery<AllTodosData>({ query: ALL_TODOS_QUERY });
+  if (cacheData === null) {
+    return;
+  }
+  const {
+    allTodos: { nodes: todos },
+  } = cacheData;
+  cache.writeQuery({
+    data: { allTodos: { nodes: [...todos, todo] } },
+    query: ALL_TODOS_QUERY,
+  });
+};
+
 const Todos = () => (
-  <Mutation<CreateTodoData, CreateTodoVariables> mutation={CREATE_TODO_MUTATION}>
+  <Mutation<CreateTodoData, CreateTodoVariables>
+    mutation={CREATE_TODO_MUTATION}
+    update={handleUpdate}
+  >
     {(createTodo, { loading: loadingC, error: errorC }) => {
       return (
         <Query<AllTodosData> query={ALL_TODOS_QUERY}>

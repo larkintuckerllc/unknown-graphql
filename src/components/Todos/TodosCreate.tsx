@@ -1,6 +1,14 @@
 import React, { ChangeEvent, FormEvent, PureComponent } from 'react';
+import { MutationFn } from 'react-apollo';
+import { CreateTodoData, CreateTodoVariables } from './index';
 
-export default class TodosCreate extends PureComponent {
+interface Props {
+  createTodo: MutationFn<CreateTodoData, CreateTodoVariables>;
+  error: boolean;
+  loading: boolean;
+}
+
+export default class TodosCreate extends PureComponent<Props> {
   public state = {
     dirty: false,
     title: '',
@@ -8,14 +16,16 @@ export default class TodosCreate extends PureComponent {
   };
 
   public render() {
+    const { error, loading } = this.props;
     const { dirty, title, valid } = this.state;
     return (
       <form onSubmit={this.handleSubmit}>
-        <input onChange={this.handleChange} value={title} />
-        <button disabled={!valid} type="submit">
+        <input disabled={loading} onChange={this.handleChange} value={title} />
+        <button disabled={!valid || loading} type="submit">
           Create
         </button>
         {dirty && !valid && <div>Required</div>}
+        {error && <div>Error</div>}
       </form>
     );
   }
@@ -28,7 +38,13 @@ export default class TodosCreate extends PureComponent {
 
   private handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // TRY SUMITTING
+    const { createTodo } = this.props;
+    const { title } = this.state;
+    createTodo({
+      variables: {
+        title,
+      },
+    });
     this.setState({
       dirty: false,
       title: '',

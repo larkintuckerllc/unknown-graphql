@@ -25,7 +25,7 @@ export default class TodosCreate extends PureComponent<Props> {
           Create
         </button>
         {dirty && !valid && <div>Required</div>}
-        {error && <div>Error</div>}
+        {error && <div>Error Creating</div>}
       </form>
     );
   }

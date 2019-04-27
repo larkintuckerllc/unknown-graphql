@@ -1,23 +1,32 @@
 import React, { PureComponent } from 'react';
-
+import { MutationFn } from 'react-apollo';
+import { DeleteTodoData, DeleteTodoVariables } from './index';
 interface Props {
-  id: number;
+  deleteTodo: MutationFn<DeleteTodoData, DeleteTodoVariables>;
+  loading: boolean;
+  nodeId: string;
   title: string;
 }
 
 export default class TodosTodo extends PureComponent<Props> {
   public render() {
-    const { title } = this.props;
+    const { loading, title } = this.props;
     return (
       <div>
         {title}
-        <button onClick={this.handleClick}>Delete</button>
+        <button disabled={loading} onClick={this.handleClick}>
+          Delete
+        </button>
       </div>
     );
   }
 
   private handleClick = () => {
-    // const { id } = this.props;
-    // TODO
+    const { deleteTodo, nodeId } = this.props;
+    deleteTodo({
+      variables: {
+        nodeId,
+      },
+    });
   };
 }

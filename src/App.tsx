@@ -2,6 +2,7 @@ import ApolloClient from 'apollo-boost';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import './App.css';
+import Entities from './components/Entities';
 import Todos from './components/Todos';
 import logo from './logo.svg';
 
@@ -26,6 +27,7 @@ const App: React.FC = () => {
           >
             Learn React
           </a>
+          <Entities plural="Todos" singular="Todo" />
           <Todos />
         </header>
       </div>

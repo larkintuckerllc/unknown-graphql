@@ -86,9 +86,10 @@ const handleCreateTodoUpdate = (cache: DataProxy, { data }: FetchResult<CreateTo
   }
   const { allTodos } = cacheData;
   const { nodes: todos } = allTodos;
-  allTodos.nodes = [...todos, todo];
+  const newAllTodos = { ...allTodos };
+  newAllTodos.nodes = [...todos, todo];
   cache.writeQuery({
-    data: { allTodos },
+    data: { allTodos: newAllTodos },
     query: ALL_TODOS_QUERY,
   });
 };
@@ -107,9 +108,10 @@ const handleDeleteTodoUpdate = (cache: DataProxy, { data }: FetchResult<DeleteTo
   const { allTodos } = cacheData;
   const { nodes: todos } = allTodos;
   const filteredTodos = todos.filter(todo => todo.nodeId !== deletedTodoId);
-  allTodos.nodes = filteredTodos;
+  const newAllTodos = { ...allTodos };
+  newAllTodos.nodes = filteredTodos;
   cache.writeQuery({
-    data: { allTodos },
+    data: { allTodos: newAllTodos },
     query: ALL_TODOS_QUERY,
   });
 };

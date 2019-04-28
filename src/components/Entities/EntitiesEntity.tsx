@@ -1,20 +1,28 @@
 import React, { PureComponent } from 'react';
 import { MutationFn } from 'react-apollo';
-import { DeleteEntityData, DeleteEntityVariables } from './index';
+import { DeleteEntityData, DeleteEntityVariables, Field } from './index';
 
 interface Props {
   deleteEntity: MutationFn<DeleteEntityData, DeleteEntityVariables>;
   entity: { [key: string]: any };
+  fields: Field[];
   loading: boolean;
   nodeId: string;
 }
 
 export default class EntitiesEntity extends PureComponent<Props> {
   public render() {
-    const { loading, entity } = this.props;
+    const { fields, loading, entity } = this.props;
     return (
       <div>
-        <div>{entity.title}</div>
+        {fields.map(field => {
+          const name = field.name;
+          return (
+            <div key={name}>
+              <b>{name}</b>: {entity[name]}
+            </div>
+          );
+        })}
         <button disabled={loading} onClick={this.handleClick}>
           Delete
         </button>

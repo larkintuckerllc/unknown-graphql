@@ -2,7 +2,7 @@ import { gql } from 'apollo-boost';
 import { DataProxy } from 'apollo-cache';
 import React, { Fragment } from 'react';
 import { FetchResult, Mutation, Query } from 'react-apollo';
-import EntitiesCreate from './EntitiesCreate';
+// import EntitiesCreate from './EntitiesCreate';
 import EntitiesEntity from './EntitiesEntity';
 
 interface Entity {
@@ -90,9 +90,10 @@ const Entities = ({ singular, plural }: Props) => {
     }
     const allEntities = cacheData[`all${plural}`];
     const { nodes: entities } = allEntities;
-    allEntities.nodes = [...entities, entity];
+    const newAllEntities = { ...allEntities };
+    newAllEntities.nodes = [...entities, entity];
     cache.writeQuery({
-      data: { [`all${plural}`]: allEntities },
+      data: { [`all${plural}`]: newAllEntities },
       query: ALL_ENTITIES_QUERY,
     });
   };
@@ -109,9 +110,10 @@ const Entities = ({ singular, plural }: Props) => {
     const allEntities = cacheData[`all${plural}`];
     const { nodes: entities } = allEntities;
     const filteredEntities = entities.filter(entity => entity.nodeId !== deletedEntityId);
-    allEntities.nodes = filteredEntities;
+    const newAllEntities = { ...allEntities };
+    newAllEntities.nodes = filteredEntities;
     cache.writeQuery({
-      data: { [`all${plural}`]: allEntities },
+      data: { [`all${plural}`]: newAllEntities },
       query: ALL_ENTITIES_QUERY,
     });
   };
@@ -142,21 +144,26 @@ const Entities = ({ singular, plural }: Props) => {
                     } = dataA;
                     return (
                       <Fragment>
+                        {/*
                         <EntitiesCreate
                           createEntity={createEntity}
                           error={errorC !== undefined}
                           loading={loadingC}
                         />
+                        */}
                         {errorD !== undefined && <div>Error Deleting</div>}
-                        {entities.map(({ nodeId, title }) => (
-                          <EntitiesEntity
-                            deleteEntity={deleteEntity}
-                            key={nodeId}
-                            nodeId={nodeId}
-                            loading={loadingD}
-                            title={title}
-                          />
-                        ))}
+                        {entities.map(entity => {
+                          const { nodeId } = entity;
+                          return (
+                            <EntitiesEntity
+                              deleteEntity={deleteEntity}
+                              entity={entity}
+                              key={nodeId}
+                              nodeId={nodeId}
+                              loading={loadingD}
+                            />
+                          );
+                        })}
                       </Fragment>
                     );
                   }}

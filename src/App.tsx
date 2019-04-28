@@ -28,6 +28,8 @@ const App: React.FC = () => {
             Learn React
           </a>
           <Entities plural="Todos" singular="Todo" />
+          <Entities plural="Todos" singular="Todo" />
+          <Todos />
           <Todos />
         </header>
       </div>

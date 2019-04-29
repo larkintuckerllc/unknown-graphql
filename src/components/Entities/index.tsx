@@ -112,9 +112,18 @@ const Entities = ({ singular, plural }: Props) => {
             }
           }
         `;
+        const createEntityParams = formFields.reduce((acc, field) => {
+          let entry = `$${field.name}: String`;
+          entry = field.required ? entry + '!, ' : entry + ', ';
+          return acc + entry;
+        }, '');
+        const createEntityParamsValues = formFields.reduce((acc, field) => {
+          const entry = `${field.name}: $${field.name}, `;
+          return acc + entry;
+        }, '');
         const CREATE_ENTITY_MUTATION = gql`
-          mutation createEntity($title: String!) {
-            create${singular}(input: { ${singularLower}: { title: $title } }) {
+          mutation createEntity(${createEntityParams}) {
+            create${singular}(input: { ${singularLower}: { ${createEntityParamsValues} } }) {
               ${singularLower} {
                 ${nodes}
               }

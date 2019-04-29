@@ -3,7 +3,6 @@ import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import './App.css';
 import Entities from './components/Entities';
-import Todos from './components/Todos';
 import logo from './logo.svg';
 
 const client = new ApolloClient({
@@ -28,9 +27,6 @@ const App: React.FC = () => {
             Learn React
           </a>
           <Entities plural="Todos" singular="Todo" />
-          <Entities plural="Todos" singular="Todo" />
-          <Todos />
-          <Todos />
         </header>
       </div>
     </ApolloProvider>

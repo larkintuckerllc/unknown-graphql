@@ -2,7 +2,7 @@ import { gql } from 'apollo-boost';
 import { DataProxy } from 'apollo-cache';
 import React, { Fragment } from 'react';
 import { FetchResult, Mutation, Query } from 'react-apollo';
-// import EntitiesCreate from './EntitiesCreate';
+import EntitiesCreate from './EntitiesCreate';
 import EntitiesEntity from './EntitiesEntity';
 
 export interface Field {
@@ -94,6 +94,16 @@ const Entities = ({ singular, plural }: Props) => {
         const filteredFields = fields.filter(
           field => field.name !== 'nodeId' && field.name !== 'id'
         );
+        // TODO: MAP FROM FIELDS
+        /*
+        const formSchema = [
+          {
+            label: 'title',
+            name: 'title',
+            required: true,
+          },
+        ];
+        */
         const ALL_ENTITIES_QUERY = gql`
           {
             all${plural} {
@@ -188,6 +198,7 @@ const Entities = ({ singular, plural }: Props) => {
                           } = dataA;
                           return (
                             <Fragment>
+                              <EntitiesCreate createEntity={createEntity} />
                               {errorD !== undefined && <div>Error Deleting</div>}
                               {entities.map(entity => {
                                 const { nodeId } = entity;

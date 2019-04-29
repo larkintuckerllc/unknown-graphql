@@ -15,6 +15,11 @@ export interface Field {
   };
 }
 
+export interface FormField {
+  name: string;
+  required: boolean;
+}
+
 interface IntrospectionData {
   __type: {
     fields: Field[];
@@ -95,15 +100,12 @@ const Entities = ({ singular, plural }: Props) => {
           field => field.name !== 'nodeId' && field.name !== 'id'
         );
         // TODO: MAP FROM FIELDS
-        /*
-        const formSchema = [
+        const formFields = [
           {
-            label: 'title',
             name: 'title',
             required: true,
           },
         ];
-        */
         const ALL_ENTITIES_QUERY = gql`
           {
             all${plural} {
@@ -183,7 +185,7 @@ const Entities = ({ singular, plural }: Props) => {
                   mutation={CREATE_ENTITY_MUTATION}
                   update={handleCreateEntityUpdate}
                 >
-                  {(createEntity, { loading: loadingC, error: errorC }) => {
+                  {createEntity => {
                     return (
                       <Query<AllEntitiesData> query={ALL_ENTITIES_QUERY}>
                         {({ loading: loadingA, error: errorA, data: dataA }) => {
@@ -198,7 +200,7 @@ const Entities = ({ singular, plural }: Props) => {
                           } = dataA;
                           return (
                             <Fragment>
-                              <EntitiesCreate createEntity={createEntity} />
+                              <EntitiesCreate createEntity={createEntity} formFields={formFields} />
                               {errorD !== undefined && <div>Error Deleting</div>}
                               {entities.map(entity => {
                                 const { nodeId } = entity;

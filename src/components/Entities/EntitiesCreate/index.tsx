@@ -1,11 +1,12 @@
 import { Formik, FormikActions, FormikProps } from 'formik';
 import React, { PureComponent } from 'react';
 import { MutationFn } from 'react-apollo';
-import { CreateEntityData, CreateEntityVariables } from '../index';
+import { CreateEntityData, CreateEntityVariables, FormField } from '../index';
 import EntititesCreateView from './EntitiesCreateView';
 
 interface Props {
   createEntity: MutationFn<CreateEntityData, CreateEntityVariables>;
+  formFields: FormField[];
 }
 
 export interface FormValues {
@@ -16,27 +17,44 @@ interface FormErrors {
   [key: string]: string;
 }
 
-const render = (props: FormikProps<FormValues>) => <EntititesCreateView {...props} />;
-
 export default class EntitiesCreate extends PureComponent<Props> {
   public render() {
+    const { formFields } = this.props;
+    const initialValues = formFields.reduce(
+      (accumulator: FormValues = {}, currentValue: FormField) => {
+        return { ...accumulator, [currentValue.name]: '' };
+      },
+      {}
+    );
     return (
       <Formik
-        initialValues={{ title: '' }}
+        initialValues={initialValues}
         onSubmit={this.handleSubmit}
-        render={render}
+        render={this.renderForm}
         validate={this.validate}
       />
     );
   }
 
+  private renderForm = (props: FormikProps<FormValues>) => {
+    const { formFields } = this.props;
+    return <EntititesCreateView {...props} formFields={formFields} />;
+  };
+
   private validate = (values: FormValues) => {
+    const { formFields } = this.props;
     const errors: FormErrors = {};
-    if (values.title === undefined) {
-      errors.title = 'Required';
-    } else if (values.title.trim() === '') {
-      errors.title = 'Must not be blank';
-    }
+    formFields.forEach(field => {
+      if (!field.required) {
+        return;
+      }
+      const { name } = field;
+      if (values[name] === undefined) {
+        errors[name] = 'Required';
+      } else if (values[name].trim() === '') {
+        errors[name] = 'Must not be blank';
+      }
+    });
     return errors;
   };
 
@@ -47,9 +65,7 @@ export default class EntitiesCreate extends PureComponent<Props> {
     const { createEntity } = this.props;
     try {
       await createEntity({
-        variables: {
-          title: values.title,
-        },
+        variables: values,
       });
       resetForm();
       setStatus({ succeeded: true });

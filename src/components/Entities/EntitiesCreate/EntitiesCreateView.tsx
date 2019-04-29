@@ -1,11 +1,32 @@
 import { Field, Form, FormikProps } from 'formik';
 import React from 'react';
 import FKFormInput from '../../FKTextInput';
+import { FormField } from '../index';
 import { FormValues } from './index';
 
-const EntitiesCreateView = ({ isSubmitting, isValid, status = {} }: FormikProps<FormValues>) => (
+interface AdditionalProps {
+  formFields: FormField[];
+}
+
+const EntitiesCreateView = ({
+  formFields,
+  isSubmitting,
+  isValid,
+  status = {},
+}: FormikProps<FormValues> & AdditionalProps) => (
   <Form>
-    <Field disabled={isSubmitting} name="title" component={FKFormInput} required={true} />
+    {formFields.map(field => {
+      const { name, required } = field;
+      return (
+        <Field
+          disabled={isSubmitting}
+          key={name}
+          name={name}
+          component={FKFormInput}
+          required={required}
+        />
+      );
+    })}
     {status.failed && <div>Failed</div>}
     <button disabled={!isValid || isSubmitting} type="submit">
       Create

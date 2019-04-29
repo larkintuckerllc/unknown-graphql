@@ -99,13 +99,10 @@ const Entities = ({ singular, plural }: Props) => {
         const filteredFields = fields.filter(
           field => field.name !== 'nodeId' && field.name !== 'id'
         );
-        // TODO: MAP FROM FIELDS
-        const formFields = [
-          {
-            name: 'title',
-            required: true,
-          },
-        ];
+        const formFields = filteredFields.map(field => ({
+          name: field.name,
+          required: field.type.kind === 'NON_NULL',
+        }));
         const ALL_ENTITIES_QUERY = gql`
           {
             all${plural} {

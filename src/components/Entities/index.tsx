@@ -1,9 +1,8 @@
 import { gql } from 'apollo-boost';
 import { DataProxy } from 'apollo-cache';
-import React, { Fragment } from 'react';
-import { FetchResult, Mutation, Query } from 'react-apollo';
-import EntitiesCreate from './EntitiesCreate';
-import EntitiesEntity from './EntitiesEntity';
+import React from 'react';
+import { FetchResult, Query } from 'react-apollo';
+import EntitiesWithFields from './EntitiesWithFields';
 
 export interface Field {
   name: string;
@@ -13,11 +12,6 @@ export interface Field {
       name: string;
     };
   };
-}
-
-export interface FormField {
-  name: string;
-  required: boolean;
 }
 
 interface IntrospectionData {
@@ -30,7 +24,7 @@ interface Entity {
   [key: string]: any;
 }
 
-interface AllEntitiesData {
+export interface AllEntitiesData {
   [key: string]: {
     nodes: Entity[];
   };
@@ -57,6 +51,10 @@ export interface DeleteEntityData {
 export interface DeleteEntityVariables {
   nodeId: string;
 }
+
+export type CreateEntityUpdate = (cache: DataProxy, result: FetchResult<CreateEntityData>) => void;
+
+export type DeleteEntityUpdate = (cache: DataProxy, result: FetchResult<DeleteEntityData>) => void;
 
 interface Props {
   plural: string;
@@ -93,16 +91,10 @@ const Entities = ({ singular, plural }: Props) => {
           return <p>Error :(</p>;
         }
         const {
-          __type: { fields },
+          __type: { fields: allFields },
         } = dataI;
-        const nodes = fields.reduce(fieldsReducer, '');
-        const filteredFields = fields.filter(
-          field => field.name !== 'nodeId' && field.name !== 'id'
-        );
-        const formFields = filteredFields.map(field => ({
-          name: field.name,
-          required: field.type.kind === 'NON_NULL',
-        }));
+        const nodes = allFields.reduce(fieldsReducer, '');
+        const fields = allFields.filter(field => field.name !== 'nodeId' && field.name !== 'id');
         const ALL_ENTITIES_QUERY = gql`
           {
             all${plural} {
@@ -112,12 +104,12 @@ const Entities = ({ singular, plural }: Props) => {
             }
           }
         `;
-        const createEntityParams = formFields.reduce((acc, field) => {
+        const createEntityParams = fields.reduce((acc, field) => {
           let entry = `$${field.name}: String`;
-          entry = field.required ? entry + '!, ' : entry + ', ';
+          entry = field.type.kind === 'NON_NULL' ? entry + '!, ' : entry + ', ';
           return acc + entry;
         }, '');
-        const createEntityParamsValues = formFields.reduce((acc, field) => {
+        const createEntityParamsValues = fields.reduce((acc, field) => {
           const entry = `${field.name}: $${field.name}, `;
           return acc + entry;
         }, '');
@@ -158,10 +150,7 @@ const Entities = ({ singular, plural }: Props) => {
             query: ALL_ENTITIES_QUERY,
           });
         };
-        const handleDeleteEntityUpdate = (
-          cache: DataProxy,
-          { data }: FetchResult<DeleteEntityData>
-        ) => {
+        const handleDeleteEntityUpdate: DeleteEntityUpdate = (cache, { data }) => {
           if (data === undefined) {
             return;
           }
@@ -181,56 +170,15 @@ const Entities = ({ singular, plural }: Props) => {
           });
         };
         return (
-          <Mutation<DeleteEntityData, DeleteEntityVariables>
-            mutation={DELETE_ENTITY_MUTATION}
-            update={handleDeleteEntityUpdate}
-          >
-            {(deleteEntity, { loading: loadingD, error: errorD }) => {
-              return (
-                <Mutation<CreateEntityData, CreateEntityVariables>
-                  mutation={CREATE_ENTITY_MUTATION}
-                  update={handleCreateEntityUpdate}
-                >
-                  {createEntity => {
-                    return (
-                      <Query<AllEntitiesData> query={ALL_ENTITIES_QUERY}>
-                        {({ loading: loadingA, error: errorA, data: dataA }) => {
-                          if (loadingA) {
-                            return <p>Loading...</p>;
-                          }
-                          if (errorA || dataA === undefined) {
-                            return <p>Error :(</p>;
-                          }
-                          const {
-                            [`all${plural}`]: { nodes: entities },
-                          } = dataA;
-                          return (
-                            <Fragment>
-                              <EntitiesCreate createEntity={createEntity} formFields={formFields} />
-                              {errorD !== undefined && <div>Error Deleting</div>}
-                              {entities.map(entity => {
-                                const { nodeId } = entity;
-                                return (
-                                  <EntitiesEntity
-                                    deleteEntity={deleteEntity}
-                                    entity={entity}
-                                    fields={filteredFields}
-                                    key={nodeId}
-                                    nodeId={nodeId}
-                                    loading={loadingD}
-                                  />
-                                );
-                              })}
-                            </Fragment>
-                          );
-                        }}
-                      </Query>
-                    );
-                  }}
-                </Mutation>
-              );
-            }}
-          </Mutation>
+          <EntitiesWithFields
+            allEntitiesQuery={ALL_ENTITIES_QUERY}
+            createEntityMutation={CREATE_ENTITY_MUTATION}
+            deleteEntityMutation={DELETE_ENTITY_MUTATION}
+            fields={fields}
+            onCreateEntityUpdate={handleCreateEntityUpdate}
+            onDeleteEntityUpdate={handleDeleteEntityUpdate}
+            plural={plural}
+          />
         );
       }}
     </Query>

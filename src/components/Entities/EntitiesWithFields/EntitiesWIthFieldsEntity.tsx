@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { MutationFn } from 'react-apollo';
-import { DeleteEntityData, DeleteEntityVariables, Field } from './index';
+import { DeleteEntityData, DeleteEntityVariables, Field } from '../index';
 
 interface Props {
   deleteEntity: MutationFn<DeleteEntityData, DeleteEntityVariables>;
@@ -10,7 +10,7 @@ interface Props {
   nodeId: string;
 }
 
-export default class EntitiesEntity extends PureComponent<Props> {
+export default class EntitiesWithFieldsEntity extends PureComponent<Props> {
   public render() {
     const { fields, loading, entity } = this.props;
     return (

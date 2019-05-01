@@ -1,29 +1,32 @@
 import { Field, Form, FormikProps } from 'formik';
 import React from 'react';
-import FKFormInput from '../../FKTextInput';
-import { FormField } from '../index';
+import FKFormInput from '../../../FKTextInput';
+import { Field as MyField } from '../../index';
 import { FormValues } from './index';
 
 interface AdditionalProps {
-  formFields: FormField[];
+  fields: MyField[];
 }
 
 const EntitiesCreateView = ({
-  formFields,
+  fields,
   isSubmitting,
   isValid,
   status = {},
 }: FormikProps<FormValues> & AdditionalProps) => (
   <Form>
-    {formFields.map(field => {
-      const { name, required } = field;
+    {fields.map(field => {
+      const {
+        name,
+        type: { kind },
+      } = field;
       return (
         <Field
           disabled={isSubmitting}
           key={name}
           name={name}
           component={FKFormInput}
-          required={required}
+          required={kind === 'NON_NULL'}
         />
       );
     })}

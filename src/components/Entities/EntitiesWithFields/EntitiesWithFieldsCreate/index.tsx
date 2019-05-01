@@ -1,12 +1,12 @@
 import { Formik, FormikActions, FormikProps } from 'formik';
 import React, { PureComponent } from 'react';
 import { MutationFn } from 'react-apollo';
-import { CreateEntityData, CreateEntityVariables, FormField } from '../index';
-import EntititesCreateView from './EntitiesCreateView';
+import { CreateEntityData, CreateEntityVariables, Field } from '../../index';
+import EntititesWithFieldsCreateView from './EntitiesWithFieldsCreateView';
 
 interface Props {
   createEntity: MutationFn<CreateEntityData, CreateEntityVariables>;
-  formFields: FormField[];
+  fields: Field[];
 }
 
 export interface FormValues {
@@ -17,15 +17,12 @@ interface FormErrors {
   [key: string]: string;
 }
 
-export default class EntitiesCreate extends PureComponent<Props> {
+export default class EntitiesWithFieldsCreate extends PureComponent<Props> {
   public render() {
-    const { formFields } = this.props;
-    const initialValues = formFields.reduce(
-      (accumulator: FormValues = {}, currentValue: FormField) => {
-        return { ...accumulator, [currentValue.name]: '' };
-      },
-      {}
-    );
+    const { fields } = this.props;
+    const initialValues = fields.reduce((accumulator: FormValues = {}, currentValue: Field) => {
+      return { ...accumulator, [currentValue.name]: '' };
+    }, {});
     return (
       <Formik
         initialValues={initialValues}
@@ -37,15 +34,15 @@ export default class EntitiesCreate extends PureComponent<Props> {
   }
 
   private renderForm = (props: FormikProps<FormValues>) => {
-    const { formFields } = this.props;
-    return <EntititesCreateView {...props} formFields={formFields} />;
+    const { fields } = this.props;
+    return <EntititesWithFieldsCreateView {...props} fields={fields} />;
   };
 
   private validate = (values: FormValues) => {
-    const { formFields } = this.props;
+    const { fields } = this.props;
     const errors: FormErrors = {};
-    formFields.forEach(field => {
-      if (!field.required) {
+    fields.forEach(field => {
+      if (field.type.kind !== 'NON_NULL') {
         return;
       }
       const { name } = field;

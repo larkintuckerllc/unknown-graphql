@@ -1,5 +1,5 @@
 import { FieldProps } from 'formik';
-import React from 'react';
+import React, { FC } from 'react';
 
 interface AdditionalProps {
   disabled?: boolean;
@@ -10,12 +10,12 @@ interface FormValues {
   [key: string]: string;
 }
 
-const FKTextInput = ({
+const FKTextInput: FC<FieldProps<FormValues> & AdditionalProps> = ({
   disabled = false,
   field,
   form: { errors, touched },
   required = false,
-}: FieldProps<FormValues> & AdditionalProps) => (
+}) => (
   <div>
     <b>
       {field.name}

@@ -4,6 +4,11 @@ import React from 'react';
 import { FetchResult, Query } from 'react-apollo';
 import EntitiesWithFields from './EntitiesWithFields';
 
+interface Props {
+  plural: string;
+  singular: string;
+}
+
 export interface Field {
   name: string;
   type: {
@@ -42,6 +47,8 @@ export interface CreateEntityVariables {
   [key: string]: any;
 }
 
+export type CreateEntityUpdate = (cache: DataProxy, result: FetchResult<CreateEntityData>) => void;
+
 export interface DeleteEntityData {
   [key: string]: {
     [key: string]: string;
@@ -52,14 +59,7 @@ export interface DeleteEntityVariables {
   nodeId: string;
 }
 
-export type CreateEntityUpdate = (cache: DataProxy, result: FetchResult<CreateEntityData>) => void;
-
 export type DeleteEntityUpdate = (cache: DataProxy, result: FetchResult<DeleteEntityData>) => void;
-
-interface Props {
-  plural: string;
-  singular: string;
-}
 
 const fieldsReducer = (accumulator: string, currentValue: Field) =>
   accumulator + `${currentValue.name}\n`;
@@ -94,7 +94,6 @@ const Entities = ({ singular, plural }: Props) => {
           __type: { fields: allFields },
         } = dataI;
         const nodes = allFields.reduce(fieldsReducer, '');
-        const fields = allFields.filter(field => field.name !== 'nodeId' && field.name !== 'id');
         const ALL_ENTITIES_QUERY = gql`
           {
             all${plural} {
@@ -104,6 +103,7 @@ const Entities = ({ singular, plural }: Props) => {
             }
           }
         `;
+        const fields = allFields.filter(field => field.name !== 'nodeId' && field.name !== 'id');
         const createEntityParams = fields.reduce((acc, field) => {
           let entry = `$${field.name}: String`;
           entry = field.type.kind === 'NON_NULL' ? entry + '!, ' : entry + ', ';
@@ -129,10 +129,7 @@ const Entities = ({ singular, plural }: Props) => {
             }
           }
         `;
-        const handleCreateEntityUpdate = (
-          cache: DataProxy,
-          { data }: FetchResult<CreateEntityData>
-        ) => {
+        const handleCreateEntityUpdate: CreateEntityUpdate = (cache, { data }) => {
           if (data === undefined) {
             return;
           }
